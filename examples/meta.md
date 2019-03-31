@@ -3,7 +3,7 @@
 use std::io::{self, Read};
 ```
 
-## State definition
+## `State` definition
 ```rust
 #[derive(Debug)]
 enum State {
@@ -12,7 +12,7 @@ enum State {
     Code
 }
 ```
-has 3 states
+Has 3 states:
 * `Start`
 * `WaitingNewline`
 * `Code`
@@ -46,30 +46,61 @@ Initial state set to `Start`.
 ```rust
     for chr in buffer.chars() {
         match state {
+```
+
+### `Start` state
+```rust
             State::Start => if detection == 3 {
                 state = State::WaitingNewline;
                 detection = 0;
             } else if chr == '`' {
                 detection += 1;
-            },
+            } else {
+                detection = 0;
+            }
+```
+
+### `WaitingNewline` state
+```rust
             State::WaitingNewline => if chr == '\n' {
                 state = State::Code;
-            },
+            }
+```
+
+### `Code` state
+```rust
             State::Code => if detection == 3 {
                 state = State::Start;
                 detection = 0;
+```
+
+```rust
                 code.pop();
                 code.pop();
                 code.pop();
+```
+Triple `code.pop();` is for removing the last three instances of the ` character.
+```rust
                 print!("{}", code);
                 code = String::new();
             } else {
-                code.push(chr);
+```
 
+```rust
+                code.push(chr);
+```
+Push every `chr` to `code` while in the `Code` state.
+
+```rust
                 if chr == '`' {
                     detection += 1;
+                } else {
+                    detection = 0;
                 }
             }
+```
+
+```rust
         }
     }
 ```
